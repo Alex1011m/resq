@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ResQ-Offline</title>
+    <meta name="description" content="Plataforma de coordinación de emergencias de bajo consumo y offline-first.">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#121212">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <header class="app-header">
+        <h1>ResQ-Offline</h1>
+        <div id="network-status" class="status-badge online">Conectado</div>
+    </header>
+
+    <main class="app-content">
+        <!-- TABS NAV -->
+        <div class="tabs">
+            <button class="tab-btn active" data-target="tab-incidencias">🚨 Incidencias</button>
+            <button class="tab-btn" data-target="tab-personas">👤 Personas</button>
+            <button class="tab-btn" data-target="tab-hospitales">🏥 Hospitales</button>
+        </div>
+
+        <!-- FORM 1: INCIDENCIAS -->
+        <section class="card tab-content active" id="tab-incidencias">
+            <h2>Reportar Emergencia</h2>
+            <form id="report-form" class="app-form">
+                <input type="hidden" id="form-context" value="incident">
+                <div class="form-group">
+                    <label for="report-type">Tipo de Incidencia</label>
+                    <select id="report-type" required>
+                        <option value="collapse">Derrumbe / Colapso</option>
+                        <option value="flood">Inundación</option>
+                        <option value="medical">Emergencia Médica</option>
+                        <option value="supplies">Falta de Insumos</option>
+                        <option value="other">Otro</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="severity">Nivel de Severidad</label>
+                    <input type="range" id="severity" min="1" max="5" value="3">
+                    <div class="severity-labels">
+                        <span>Bajo</span>
+                        <span>Crítico</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Estado de Rescatistas</label>
+                    <div style="margin-bottom: 0.5rem; display: flex; align-items: center;">
+                        <input type="checkbox" id="has-rescuers" style="width: 20px; height: 20px; margin-right: 10px;">
+                        <label for="has-rescuers" style="margin: 0;">Hay rescatistas en la zona</label>
+                    </div>
+                    <div id="rescuers-details" style="display: none; background: #2a2a2a; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+                        <label for="current-rescuers">¿Cuántos hay actualmente?</label>
+                        <input type="number" id="current-rescuers" min="0" value="0" style="width: 100%; margin-bottom: 1rem; padding: 0.5rem; background:#333; color:white; border:1px solid #444;">
+                        
+                        <label for="needed-rescuers">¿Cuántos adicionales se necesitan?</label>
+                        <input type="number" id="needed-rescuers" min="0" value="0" style="width: 100%; padding: 0.5rem; background:#333; color:white; border:1px solid #444;">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <button type="button" class="btn btn-secondary btn-location">
+                        <span class="loc-status">📍 Capturar Ubicación</span>
+                    </button>
+                    <small class="loc-data"></small>
+                </div>
+                <button type="submit" class="btn btn-primary btn-submit" disabled>
+                    Enviar Reporte
+                </button>
+            </form>
+        </section>
+
+        <!-- FORM 2: PERSONAS -->
+        <section class="card tab-content" id="tab-personas">
+            <h2>Persona Encontrada</h2>
+            <form id="person-form" class="app-form">
+                <input type="hidden" id="form-context" value="person">
+                <div class="form-group">
+                    <label>Nombre / Identificación (Opcional)</label>
+                    <input type="text" id="person-name" style="width: 100%; padding: 0.75rem; background:#333; color:white; border:1px solid #444; border-radius: 4px;">
+                </div>
+                <div class="form-group">
+                    <label>Estado Médico</label>
+                    <select id="person-status" required>
+                        <option value="stable">Estable</option>
+                        <option value="injured">Herido</option>
+                        <option value="critical">Crítico</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>¿Dónde estará / Hacia dónde se traslada?</label>
+                    <input type="text" id="person-location" placeholder="Ej. Refugio Norte, Hospital San Juan..." style="width: 100%; padding: 0.75rem; background:#333; color:white; border:1px solid #444; border-radius: 4px;">
+                </div>
+                <div class="form-group">
+                    <label>Tomar Foto</label>
+                    <input type="file" id="person-photo" accept="image/*" capture="environment" style="color:white; width: 100%;">
+                    <div class="img-preview-container"><img id="person-preview" class="img-preview"></div>
+                </div>
+                <div class="form-group">
+                    <button type="button" class="btn btn-secondary btn-location">
+                        <span class="loc-status">📍 Capturar Ubicación</span>
+                    </button>
+                    <small class="loc-data"></small>
+                </div>
+                <button type="submit" class="btn btn-primary btn-submit" disabled>
+                    Reportar Persona
+                </button>
+            </form>
+        </section>
+
+        <!-- FORM 3: HOSPITALES -->
+        <section class="card tab-content" id="tab-hospitales">
+            <h2>Listas de Hospital / Refugio</h2>
+            <form id="hospital-form" class="app-form">
+                <input type="hidden" id="form-context" value="hospital">
+                <div class="form-group">
+                    <label>Nombre del Hospital/Refugio</label>
+                    <input type="text" id="hospital-name" required style="width: 100%; padding: 0.75rem; background:#333; color:white; border:1px solid #444; border-radius: 4px;">
+                </div>
+                <div class="form-group">
+                    <label>Foto de la Lista</label>
+                    <input type="file" id="hospital-photo" accept="image/*" capture="environment" required style="color:white; width: 100%;">
+                    <div class="img-preview-container"><img id="hospital-preview" class="img-preview"></div>
+                </div>
+                <div class="form-group">
+                    <button type="button" class="btn btn-secondary btn-location">
+                        <span class="loc-status">📍 Capturar Ubicación</span>
+                    </button>
+                    <small class="loc-data"></small>
+                </div>
+                <button type="submit" class="btn btn-primary btn-submit" disabled>
+                    Subir Lista
+                </button>
+            </form>
+        </section>
+
+        <section class="card">
+            <a href="coordinador.html" class="btn btn-outline" style="text-align: center; text-decoration: none; margin-bottom: 10px;">Vista del Coordinador Global</a>
+            <p>Reportes en cola offline: <strong id="queue-count">0</strong></p>
+            <button type="button" id="btn-sync" class="btn btn-outline" disabled>
+                Forzar Sincronización
+            </button>
+        </section>
+
+        <section class="card">
+            <h2>Historial de Reportes (Local)</h2>
+            <div id="reports-list">
+                <p style="color: var(--text-secondary); text-align: center; padding: 1rem;">No hay reportes recientes.</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Scripts Modulares -->
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>
